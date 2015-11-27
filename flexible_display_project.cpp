@@ -43,11 +43,6 @@ MyFrame::MyFrame(wxWindow* parent) : wxFrame(parent, -1, _("wxAUI Test"),
 		wxDefaultPosition, wxSize(200, 150),
 		wxNO_BORDER | wxTE_MULTILINE);
 
-	/*
-	wxTextCtrl* text3 = new wxTextCtrl(this, -1, _("Main content window"),
-	wxDefaultPosition, wxSize(200,150),
-	wxNO_BORDER | wxTE_MULTILINE);
-	*/
 	int *gl_attrib = NULL;
 	m_canvas = new PreviewGLCanvas(this, wxID_ANY, gl_attrib);
 	m_canvas->InitGL();
@@ -137,15 +132,11 @@ void PreviewGLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	glPushMatrix();
-//    glRotatef( 45, 1.0f, 0.0f, 0.0f );
-//    glTranslatef(2.0f,0,0.0f);
     glRotatef( m_xrot, 1.0f, 0.0f, 0.0f );
 	glRotatef( m_yrot, 0.0f, 1.0f, 0.0f );
 	GLUquadricObj *obj = gluNewQuadric();
 	gluQuadricDrawStyle(obj, GLU_LINE); // GLU_FILL GLU_LINE GLU_SILHOUETTE GLU_POINT
-//	gluQuadricNormals(obj, GLU_NONE); //GLU_NONE GLU_FLAT GLU_SMOOTH
-//	gluQuadricOrientation(obj, GLU_OUTSIDE);
-//	gluQuadricTexture(obj, GL_TRUE);
+
 	gluSphere(obj, 0.0f, 30, 30);//(obj, 1.0, 1, 2, 30, 30);
     glTranslatef(0.0f,0,-2.0f);
 
@@ -153,31 +144,7 @@ void PreviewGLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
     gluCylinder(obj, 1, 1, 4, 30, 30);
 
 	glPopMatrix();
-	/*
-    glPushMatrix();
-    glRotatef( m_yrot, 0.0f, 1.0f, 0.0f );
-    glRotatef( m_xrot, 1.0f, 0.0f, 0.0f );
 
-    // draw the surface
-    if (g_use_vertex_arrays)
-    {
-        glDrawArrays( GL_TRIANGLE_STRIP, 0, m_numverts );
-    }
-    else
-    {
-        glBegin( GL_TRIANGLE_STRIP );
-
-        for (int i=0;i<m_numverts;i++)
-        {
-            glNormal3fv( m_norms[i] );
-            glVertex3fv( m_verts[i] );
-        }
-
-        glEnd();
-    }
-
-    glPopMatrix();
-	*/
     glFlush(); // Not really necessary: buffer swapping below implies glFlush()
 
     SwapBuffers();
@@ -232,17 +199,4 @@ void PreviewGLCanvas::InitGL()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef( 0.0, 0.0, -10.0 );
-
-	/*
-    if (g_use_vertex_arrays)
-    {
-        glVertexPointer( 3, GL_FLOAT, 0, m_verts );
-        glNormalPointer( GL_FLOAT, 0, m_norms );
-        glEnable( GL_VERTEX_ARRAY );
-        glEnable( GL_NORMAL_ARRAY );
-    }
-	*/
-
-//    InitMaterials();
-//    LoadSurface("isosurf.dat.gz");
 }
