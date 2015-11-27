@@ -5,6 +5,9 @@
 #include <gl/GL.h>
 #include <gl/GLU.h>
 
+#include "RGBpixmap.h"
+
+RGBpixmap pix1[1];
 
 wxBEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(wxID_OPEN, MyFrame::OnMenuFileOpen)
@@ -131,19 +134,35 @@ void PreviewGLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	glPushMatrix();
-    glRotatef( m_xrot, 1.0f, 0.0f, 0.0f );
-	glRotatef( m_yrot, 0.0f, 1.0f, 0.0f );
-	GLUquadricObj *obj = gluNewQuadric();
-	gluQuadricDrawStyle(obj, GLU_LINE); // GLU_FILL GLU_LINE GLU_SILHOUETTE GLU_POINT
+	int ang;
+	int delang = 10;
+	float r0 = 0.52;
+	float x0 = r0;
+	float x1 = r0;
+	float z0 = 0.0;
+	float z1 = 0.0;
+	double const pi = 3.1415926;
 
-	gluSphere(obj, 0.0f, 30, 30);//(obj, 1.0, 1, 2, 30, 30);
-    glTranslatef(0.0f,0,-2.0f);
+	glBegin(GL_QUADS);
 
-	gluQuadricDrawStyle(obj, GLU_LINE); // GLU_FILL GLU_LINE GLU_SILHOUETTE GLU_POINT
-    gluCylinder(obj, 1, 1, 4, 30, 30);
-
-	glPopMatrix();
+	for (ang = 0; ang <= 360; ang += delang)
+	{
+		x0 = r0*cos((double)ang*2.0*pi / 360.0);
+		x1 = r0*cos((double)(ang + delang)*2.0*pi / 360.0);
+		z0 = r0*sin((double)ang*2.0*pi / 360.0);
+		z1 = r0*sin((double)(ang + delang)*2.0*pi / 360.0);
+		glTexCoord2f((float)ang / 360.0, 0.0);
+		glVertex3f(x0, 0.0, z0);
+		glTexCoord2f((float)ang / 360.0, 1.0);
+		glVertex3f(x0, 0.8, z0);
+		glTexCoord2f((float)(ang + delang) / 360.0, 1.0);
+		glVertex3f(x1, 0.8, z1);
+		glTexCoord2f((float)(ang + delang) / 360.0, 0.0);
+		glVertex3f(x1, 0.0, z1);
+		x0 = x1;
+		z0 = z1;
+	}
+	glEnd();
 
     glFlush(); // Not really necessary: buffer swapping below implies glFlush()
 
@@ -181,22 +200,25 @@ void PreviewGLCanvas::OnMouseEvent(wxMouseEvent& event)
 void PreviewGLCanvas::InitGL()
 {
     // Make the new context current (activate it for use) with this canvas.
-    SetCurrent(*m_glRC);
+	SetCurrent(*m_glRC);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    glShadeModel(GL_SMOOTH);
-    glEnable(GL_DEPTH_TEST);
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 
-//    InitMaterials();
+	//    InitMaterials();
 	glViewport(0, 0, 600, 400);
+	pix1[0].readBMPFile("bmp_baboon.bmp");
+	pix1[0].setTexture(1);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-//    glFrustum( -1.0, 1.0, -1.0, 1.0, 5.0, 25.0 );
-	gluPerspective(45 /*view angle*/, 600/400.0, 0.1 /*clip close*/, 200 /*clip far*/);
+	glMatrixMode(GL_PROJECTION);
+	//    glLoadIdentity();
+	//    glFrustum( -1.0, 1.0, -1.0, 1.0, 5.0, 25.0 );
+	gluPerspective(45, 600 / 400.0, 0.1, 200);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glTranslatef( 0.0, 0.0, -10.0 );
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(0.0, 0.0, -10.0);
 }
